@@ -118,28 +118,34 @@ function initializeCube() {
                 rotateSide('y', 1, 1);
                 break;
             case 'ArrowDown':
-                rotateSide('y', -1, -1);
+                rotateSide('y', 1, -1);
                 break;
             case 'ArrowLeft':
                 rotateSide('x', -1, -1);
                 break;
             case 'ArrowRight':
-                rotateSide('x', 1, 1);
+                rotateSide('x', -1, 1);
                 break;
             case 'w':
                 rotateSide('z', -1, 1);
                 break;
             case 's':
-                rotateSide('z', 1, -1);
+                rotateSide('z', -1, -1);
                 break;
             case 'a':
                 rotateSide('y', -1, 1);
                 break;
             case 'd':
-                rotateSide('y', 1, -1);
+                rotateSide('y', -1, -1);
                 break;
             case 'q':
-                rotateSide('x', -1, 1);
+                rotateSide('x', 1, 1);
+                break;
+            case 'r':
+                rotateSide('z', 1, 1);
+                break;
+            case 'f':
+                rotateSide('z', 1, -1);
                 break;
             case 'e':
                 rotateSide('x', 1, -1);
