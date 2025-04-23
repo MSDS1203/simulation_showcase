@@ -10,12 +10,23 @@ function initializeCube() {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas') });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
     // Set the position of the camera
     camera.position.set(5, 3, 5);
     camera.lookAt(0, 0, 0);
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas') });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    // Add controls to move the Rubik's cube and camera
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.25;
+    controls.enableZoom = true;
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(5, 10, 7.5);
+    scene.add(directionalLight);
     
     const cubeSize = 3; // size of the Rubik's cube
     const subcubeSize = 1; // size of each subcube
@@ -23,11 +34,11 @@ function initializeCube() {
 
     const colors = [
         0xff0000, // red
-        0x00ff00, // green
-        0x0000ff, // blue
-        0xffff00, // yellow
         0xffa500, // orange
-        0xffffff  // white
+        0x0000ff, // blue
+        0x00ff00, // green
+        0xffffff, // white
+        0xffff00  // yellow
     ]
 
     // Create the Rubik's cube
@@ -57,12 +68,6 @@ function initializeCube() {
     }
 
     camera.position.z = 5;
-
-    // Add controls to move the Rubik's cube and camera
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.25;
-    controls.enableZoom = true;
 
     // function to rotate a side of the cube
     // axis: 'x', 'y', or 'z'
