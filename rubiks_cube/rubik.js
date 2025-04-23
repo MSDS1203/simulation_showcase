@@ -47,6 +47,8 @@ function initializeCube() {
             for (let k = 0; k < cubeSize; k++) {
                 // Create each side of the Rubik's cube
                 const geometry = new THREE.BoxGeometry(subcubeSize, subcubeSize, subcubeSize);
+                const edges = new THREE.EdgesGeometry( geometry );
+                const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial( { color: 'black' } ) );
                 const materials = [
                     new THREE.MeshBasicMaterial({ color: colors[0] }),
                     new THREE.MeshBasicMaterial({ color: colors[1] }),
@@ -63,6 +65,7 @@ function initializeCube() {
                 subcubes.push(subcube);
                 // Add the subcube to the scene
                 scene.add(subcube);
+                subcube.add(line);
             }
         }
     }
