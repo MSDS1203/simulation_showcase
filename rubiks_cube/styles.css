@@ -1,6 +1,6 @@
 body {
     margin: 0;
-    display: flex;
+    display: block;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -9,16 +9,19 @@ body {
     font-family: Arial, sans-serif;
 }
 
+#start-screen {
+    margin-top: 1%;
+    text-align: center;
+}
+
 button {
     padding: 10px 20px;
     font-size: 16px;
-    margin: 20px;
     background-color: green;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s;
 }
 
 button:hover {
@@ -29,7 +32,7 @@ canvas {
     position: absolute;
     height: 250px;
     width: 250px;
-    top: 10px;
+    top: 5%;
     left: 10px;
     font-size: 20px;
     background-color: white;
@@ -39,12 +42,14 @@ canvas {
 }
 
 #timer {
+    text-align: center;
     color: white;
+    z-index: 999;
 }
 
 #instructions {
     position: absolute;
-    top: 50px;
+    top: 9%;
     left: 35px;
     font-size: 16px;
     background-color: green;
@@ -53,6 +58,7 @@ canvas {
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     max-width: 200px;
+    z-index: 1;
 }
 
 #win {

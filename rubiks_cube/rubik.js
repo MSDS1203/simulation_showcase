@@ -20,12 +20,18 @@ function initializeCube() {
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.25;
-
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    controls.enableZoom = false;
+    
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // Soft white ambient light
     scene.add(ambientLight);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(5, 10, 7.5);
+    
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6); // Directional light
+    directionalLight.position.set(5, 10, 5).normalize(); // Position it appropriately
     scene.add(directionalLight);
+    
+    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4); // Another light source
+    directionalLight2.position.set(-5, -10, -5).normalize();
+    scene.add(directionalLight2);
     
     const cubeSize = 3; // size of the Rubik's cube
     const subcubeSize = 1; // size of each subcube
@@ -49,12 +55,12 @@ function initializeCube() {
                 const edges = new THREE.EdgesGeometry( geometry );
                 const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial( { color: 'black' } ) );
                 const materials = [
-                    new THREE.MeshBasicMaterial({ color: colors[0] }),
-                    new THREE.MeshBasicMaterial({ color: colors[1] }),
-                    new THREE.MeshBasicMaterial({ color: colors[2] }),
-                    new THREE.MeshBasicMaterial({ color: colors[3] }),
-                    new THREE.MeshBasicMaterial({ color: colors[4] }),
-                    new THREE.MeshBasicMaterial({ color: colors[5] })
+                    new THREE.MeshStandardMaterial({ color: colors[0] }),
+                    new THREE.MeshStandardMaterial({ color: colors[1] }),
+                    new THREE.MeshStandardMaterial({ color: colors[2] }),
+                    new THREE.MeshStandardMaterial({ color: colors[3] }),
+                    new THREE.MeshStandardMaterial({ color: colors[4] }),
+                    new THREE.MeshStandardMaterial({ color: colors[5] })
                 ];
                 // Create each subcube
                 const subcube = new THREE.Mesh(geometry, materials);
@@ -69,13 +75,107 @@ function initializeCube() {
         }
     }
 
+    let selectedLayer = null;
+    let selectedAxis = null;
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    renderer.domElement.addEventListener('mousedown', (event) => {
+        // Normalize mouse coordinates to [-1, 1] range
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    
+        // Set up the raycaster from the camera
+        raycaster.setFromCamera(mouse, camera);
+    
+        // Intersect with the subcubes
+        const intersects = raycaster.intersectObjects(subcubes);
+    
+        if (intersects.length > 0) {
+            const hit = intersects[0].object;
+            const pos = hit.position;
+    
+            let newSelectedAxis, newSelectedLayer;
+    
+            // Check for left-click (for vertical layer) vs right-click (for horizontal layer)
+            if (event.button === 0) { // Left-click for vertical layers
+                // Pick the axis most perpendicular to the camera for vertical layer
+                newSelectedAxis = ['x', 'y', 'z'].reduce((a, b) => 
+                    Math.abs(camera.position[a]) > Math.abs(camera.position[b]) ? a : b
+                );
+            } else if (event.button === 2) { // Right-click for horizontal layers
+                // Use the axis that is **most parallel** to the camera for horizontal layers
+                newSelectedAxis = ['x', 'y', 'z'].reduce((a, b) => 
+                    Math.abs(camera.position[a]) < Math.abs(camera.position[b]) ? a : b
+                );
+            }
+    
+            newSelectedLayer = Math.round(pos[newSelectedAxis]);
+    
+            // If clicked on the same layer, deselect it
+            if (newSelectedAxis === selectedAxis && newSelectedLayer === selectedLayer) {
+                clearHighlight(); // Deselect the layer
+                selectedAxis = null;
+                selectedLayer = null;
+                currentlyHighlighted = false;
+                return;
+            }
+    
+            // Update selected axis and layer
+            selectedAxis = newSelectedAxis;
+            selectedLayer = newSelectedLayer;
+    
+            // Highlight the selected layer
+            highlightSelectedLayer();
+        }
+    });
+    
+    // Prevent context menu on right-click to allow for custom behavior
+    renderer.domElement.addEventListener('contextmenu', (event) => {
+        event.preventDefault();
+    });
+
     camera.position.z = 5;
+
+    let currentlyHighlighted = false;
+
+    function highlightSelectedLayer() {
+        if (currentlyHighlighted) {
+            // Clear highlight if already highlighted
+            clearHighlight();
+            currentlyHighlighted = false;
+            return;
+        }
+
+        subcubes.forEach(subcube => {
+            if (selectedAxis !== null && selectedLayer !== null) {
+                if (Math.round(subcube.position[selectedAxis]) === selectedLayer) {
+                    subcube.material.forEach(mat => {
+                        mat.emissive = new THREE.Color(0x2222ff); // Light blue highlight
+                        mat.emissiveIntensity = 0.6; // Optional: intensity for a glowing effect
+                    });
+                }
+            }
+        });
+        currentlyHighlighted = true;
+    }
+
+    function clearHighlight() {
+        subcubes.forEach(subcube => {
+            subcube.material.forEach(mat => {
+                mat.emissive = new THREE.Color(0x000000); // Reset emissive to black
+                mat.emissiveIntensity = 0; // Reset intensity
+            });
+        });
+    }
 
     // function to rotate a side of the cube
     // axis: 'x', 'y', or 'z'
     // layer: -1, 0, or 1 (for the three layers of the cube)
     // direction: -1 for clockwise, 1 for counterclockwise
     function rotateSide(axis, layer, direction) {
+        clearHighlight();
+        
         const rotationAxis = new THREE.Vector3();
         rotationAxis[axis] = 1;
         const rotationAngle = direction * Math.PI / 2;
@@ -120,63 +220,33 @@ function initializeCube() {
 
     // Add event listeners for keyboard controls
     document.addEventListener('keydown', (event) => {
+        if (selectedAxis === null || selectedLayer === null) return;
+    
+        let direction = 0;
+    
         switch (event.key) {
             case 'ArrowUp':
-                rotateSide('y', 1, 1);
+            case 'w':
+                direction = 1;
                 break;
             case 'ArrowDown':
-                rotateSide('y', 1, -1);
+            case 's':
+                direction = -1;
                 break;
             case 'ArrowLeft':
-                rotateSide('x', -1, -1);
+            case 'a':
+                direction = -1;
                 break;
             case 'ArrowRight':
-                rotateSide('x', -1, 1);
-                break;
-            case 'w':
-                rotateSide('z', -1, 1);
-                break;
-            case 's':
-                rotateSide('z', -1, -1);
-                break;
-            case 'a':
-                rotateSide('y', -1, 1);
-                break;
             case 'd':
-                rotateSide('y', -1, -1);
-                break;
-            case 'q':
-                rotateSide('x', 1, 1);
-                break;
-            case 'r':
-                rotateSide('z', 1, 1);
-                break;
-            case 'f':
-                rotateSide('z', 1, -1);
-                break;
-            case 'e':
-                rotateSide('x', 1, -1);
-                break;
-            case 'z':
-                rotateSide('x', 0, 1);
-                break;
-            case 'x':
-                rotateSide('x', 0, -1);
-                break;
-            case 'c':
-                rotateSide('y', 0, 1);
-                break;
-            case 'v':
-                rotateSide('y', 0, -1);
-                break;
-            case 'b':
-                rotateSide('z', 0, 1);
-                break;
-            case 'n':
-                rotateSide('z', 0, -1);
+                direction = 1;
                 break;
         }
-        checkIfSolved();
+    
+        if (direction !== 0) {
+            rotateSide(selectedAxis, selectedLayer, direction);
+            checkIfSolved();
+        }
     });
 
     // Add event listener for window resize

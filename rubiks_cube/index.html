@@ -7,19 +7,22 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <button id="start">Start</button>
-    <canvas id="canvas"></canvas>
-    <div id="timer">Timer: 00:00</div>
+    <div id="start-screen">
+        <button id="start">Start</button>
+        <div id="timer">Timer: 00:00</div>
+    </div>
     <div id="instructions">
         <strong>Instructions</strong><br>
-        Arrow Keys + WASDQERF rotate outer layers<br>
-        ZXCVBN rotate middle layers<br>
+        Left click: Select vertical layer<br>
+        Right click: Select horizonal layer<br>
+        Arrow keys/WASD: Rotate layers<br>
         Use the mouse/keypad to click and drag the view around<br>
     </div>
     <div id="win">
         Congratulations! You solved the cube!
         <button id="reset">Play Again</button>
     </div>
+    <canvas id="canvas"></canvas>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
     <script type="module" src="rubik.js"></script>
