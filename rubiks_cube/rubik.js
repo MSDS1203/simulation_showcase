@@ -150,9 +150,14 @@ function initializeCube() {
         subcubes.forEach(subcube => {
             if (selectedAxis !== null && selectedLayer !== null) {
                 if (Math.round(subcube.position[selectedAxis]) === selectedLayer) {
-                    subcube.material.forEach(mat => {
-                        mat.emissive = new THREE.Color(0x2222ff); // Light blue highlight
-                        mat.emissiveIntensity = 0.6; // Optional: intensity for a glowing effect
+                    subcube.children.forEach(child => {
+                        if (child.isLineSegments) {
+                            // Make thicker highlighted edges
+                            child.material = new THREE.LineBasicMaterial({
+                                color: 0x2222ff,
+                                linewidth: 4 // <- Thicker border (may not affect all browsers!)
+                            });
+                        }
                     });
                 }
             }
@@ -162,9 +167,13 @@ function initializeCube() {
 
     function clearHighlight() {
         subcubes.forEach(subcube => {
-            subcube.material.forEach(mat => {
-                mat.emissive = new THREE.Color(0x000000); // Reset emissive to black
-                mat.emissiveIntensity = 0; // Reset intensity
+            subcube.children.forEach(child => {
+                if (child.isLineSegments) {
+                    child.material = new THREE.LineBasicMaterial({
+                        color: 0x000000,
+                        linewidth: 1
+                    });
+                }
             });
         });
     }
