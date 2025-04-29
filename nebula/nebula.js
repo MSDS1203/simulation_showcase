@@ -38,11 +38,11 @@ const init = () => {
     blueLight.position.set(500, 300, 0);
     app.scene.add(blueLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xff8c19);
+    const directionalLight = new THREE.DirectionalLight(0xff8c19, 1);
     directionalLight.position.set(0, 0, 1);
     app.scene.add(directionalLight);
 
-    app.scene.fog = new THREE.FogExp2(0x03544e, 0.001);
+    app.scene.fog = new THREE.FogExp2(0x000001, 0.001);
     app.renderer.setClearColor(app.scene.fog.color);
     
     const textureLoader = new THREE.TextureLoader();
@@ -65,9 +65,9 @@ const init = () => {
     for (let p = 0; p < 70; p++){
         const cloud = new THREE.Mesh(cloudGeo, cloudMaterial);
         cloud.position.set(
-            Math.random() * 800 - 400,
+            Math.random() * window.innerWidth - 400,
             500,
-            Math.random() * 800 - 400
+            Math.random() * window.innerHeight - 400
         );
 
         cloud.rotation.x = 1.16;
