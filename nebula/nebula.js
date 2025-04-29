@@ -10,6 +10,9 @@ let app = {
 }
 
 const cloudParticles = [];
+const blueLight = new THREE.PointLight(0x3677ac, 700000);
+const orangeLight = new THREE.PointLight(0xcc6600, 700000);
+const redLight = new THREE.PointLight(0xd8547e, 700000);
 
 const init = () => {
     app.renderer = new THREE.WebGLRenderer();
@@ -28,7 +31,6 @@ const init = () => {
 
     let orangeLightx = Math.random() * 500 - 300;
     let orangeLightz = Math.random() * 500 - 300;
-    const orangeLight = new THREE.PointLight(0xcc6600, 700000);
     orangeLight.position.set(orangeLightx, 300, orangeLightz);
     app.scene.add(orangeLight);
 
@@ -40,7 +42,6 @@ const init = () => {
     while (redLightz == orangeLightz){
       redLightz += 300;
     }
-    const redLight = new THREE.PointLight(0xd8547e, 700000);
     redLight.position.set(redLightx, 300, redLightz);
     app.scene.add(redLight);
 
@@ -52,7 +53,6 @@ const init = () => {
     while (blueLightz == orangeLightz || blueLightz == redLightz){
       blueLightz += 300;
     }
-    const blueLight = new THREE.PointLight(0x3677ac, 700000);
     blueLight.position.set(blueLightx, 300, blueLightz);
     app.scene.add(blueLight);
 
@@ -113,27 +113,85 @@ const init = () => {
     app.composer.addPass(effectPass);
 };
 
-let targetRotationSpeed = 0.001;
+let targetRotation = 0.001;
 let rotationSpeed = 0.001;
+let mvmntx = 0;
+let mvmntz = 0;
 
 window.addEventListener('keydown', (event) => {
   if (event.key === 'ArrowRight') {
     console.log("Key pressed");
-    targetRotationSpeed = 0.01;
+    targetRotation = -0.01;
+    mvmntx = -0.01;
   }
 });
 
 window.addEventListener('keyup', (event) => {
   if (event.key === 'ArrowRight') {
-    targetRotationSpeed = 0.001;
+    targetRotation = 0.001;
+    mvmntx = 0;
+  }
+});
+
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'ArrowLeft') {
+    console.log("Key pressed");
+    targetRotation = 0.01;
+    mvmntx = 0.01;
+  }
+});
+
+window.addEventListener('keyup', (event) => {
+  if (event.key === 'ArrowLeft') {
+    targetRotation = 0.001;
+    mvmntx = 0;
+  }
+});
+
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'ArrowUp') {
+    console.log("Key pressed");
+    targetRotation = 0.01;
+    mvmntz = -0.01;
+  }
+});
+
+window.addEventListener('keyup', (event) => {
+  if (event.key === 'ArrowUp') {
+    targetRotation = 0.001;
+    mvmntz = 0;
+  }
+});
+
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'ArrowDown') {
+    console.log("Key pressed");
+    targetRotation = -0.01;
+    mvmntz = 0.01;
+  }
+});
+
+window.addEventListener('keyup', (event) => {
+  if (event.key === 'ArrowDown') {
+    targetRotation = 0.001;
+    mvmntz = 0;
   }
 });
 
 const render = () => {
-  rotationSpeed += ( targetRotationSpeed - rotationSpeed ) * 0.1;
+  rotationSpeed += ( targetRotation  - rotationSpeed ) * 0.1;
 
   cloudParticles.forEach(p =>{
     p.rotation.z -= rotationSpeed;
+    p.position.x -= mvmntx;
+    blueLight.position.x -= mvmntx;
+    orangeLight.position.x -= mvmntx;
+    redLight.position.x -= mvmntx;
+
+    p.position.z -= mvmntz;
+    blueLight.position.z -= mvmntz;
+    orangeLight.position.z -= mvmntz;
+    redLight.position.z -= mvmntz;
   });
   app.composer.render(0.1);
   requestAnimationFrame(render);
