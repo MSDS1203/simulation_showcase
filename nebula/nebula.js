@@ -27,15 +27,33 @@ const init = () => {
     app.scene.add(ambient);
 
     const orangeLight = new THREE.PointLight(0xcc6600, 700000);
-    orangeLight.position.set(-200, 300, -100);
+    const orangeLightx = Math.random() * 500 - 300;
+    const orangeLightz = Math.random() * 500 - 300;
+    orangeLight.position.set(orangeLightx, 300, orangeLightz);
     app.scene.add(orangeLight);
 
+    const redLightx = Math.random() * 500 - 300;
+    const redLightz = Math.random() * 500 - 300;
+    while (redLightx == orangeLightx){
+      redLightx += 300;
+    }
+    while (redLightz == orangeLightz){
+      redLightz += 300;
+    }
     const redLight = new THREE.PointLight(0xd8547e, 700000);
-    redLight.position.set(0, 300, -100);
+    redLight.position.set(redLightx, 300, redLightz);
     app.scene.add(redLight);
 
+    const blueLightx = Math.random() * 500 - 300;
+    const blueLightz = Math.random() * 500 - 300;
+    while (blueLightx == redLightx || blueLightx == orangeLightx){
+      blueLightx += 300;
+    }
+    while (blueLightz == orangeLightz || blueLightz == redLightz){
+      blueLightz += 300;
+    }
     const blueLight = new THREE.PointLight(0x3677ac, 700000);
-    blueLight.position.set(500, 300, 0);
+    blueLight.position.set(blueLightx, 300, blueLightz);
     app.scene.add(blueLight);
 
     const directionalLight = new THREE.DirectionalLight(0xff8c19, 1);
@@ -65,9 +83,9 @@ const init = () => {
     for (let p = 0; p < 70; p++){
         const cloud = new THREE.Mesh(cloudGeo, cloudMaterial);
         cloud.position.set(
-            Math.random() * window.innerWidth - 400,
+            Math.random() * 800 - 400,
             500,
-            Math.random() * window.innerHeight - 400
+            Math.random() * 500 - 500
         );
 
         cloud.rotation.x = 1.16;
@@ -97,7 +115,7 @@ const init = () => {
 
 const render = () => {
   cloudParticles.forEach(p =>{
-    p.rotation.z -= 0.002;
+    p.rotation.z -= 0.001;
   });
   app.composer.render(0.1);
   requestAnimationFrame(render);
