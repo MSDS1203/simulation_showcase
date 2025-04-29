@@ -25,14 +25,14 @@ const init = () => {
     app.scene.fog = new THREE.FogExp2(0x03544e, 0.0001);
     app.renderer.setClearColor(app.scene.fog.color);
     
-    const ambient = new THREE.AmbientLight(0x555555);
+    const ambient = new THREE.AmbientLight(0x555555, 0.75);
     app.scene.add(ambient);
 
     const directionalLight = new THREE.DirectionalLight(0xff8c19);
-    directionalLight.position.set(0, 0, 1);
+    directionalLight.position.set(0.1, 0, 0);
     app.scene.add(directionalLight);
 
-    const orangeLight = new THREE.PointLight(0xcc6600, 50, 450, 1.7);
+    const orangeLight = new THREE.PointLight(0xcc6600, 200, 450, 1.7);
     orangeLight.position.set(200, 300, 100);
     app.scene.add(orangeLight);
 
@@ -41,17 +41,14 @@ const init = () => {
     app.scene.add(redLight);
 
     const blueLight = new THREE.PointLight(0x3677ac, 50, 450, 1.7);
-    blueLight.position.set(200, 300, 100);
+    blueLight.position.set(200, 300, -100);
     app.scene.add(blueLight);
     
     const textureLoader = new THREE.TextureLoader();
     const cloudTexture = textureLoader.load("smoke.png");
     const cloudGeo = new THREE.PlaneGeometry(500, 500);
-    const cloudMaterial = new THREE.MeshLambertMaterial({
+    const cloudMaterial = new THREE.MeshPhongMaterial({
         map: cloudTexture, 
-        color: 0xffffff, 
-        emissive: 0x222222,
-        emissiveIntensity: 0.5,
         transparent: true});
 
     for (let p = 0; p < 50; p++){
@@ -65,7 +62,7 @@ const init = () => {
         cloud.rotation.x = 1.16;
         cloud.rotation.y = -0.12;
         cloud.rotation.z = Math.random() * 2 * Math.PI;
-        cloud.material.opacity = 0.55;
+        cloud.material.opacity = 0.35;
         cloudParticles.push(cloud);
         app.scene.add(cloud);
     }
