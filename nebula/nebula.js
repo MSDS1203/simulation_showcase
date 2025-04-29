@@ -56,13 +56,13 @@ const init = () => {
         cloud.position.set(
             Math.random() * 800 - 400,
             500,
-            Math.random() * 800 - 500
+            Math.random() * 500 - 500
         );
 
         cloud.rotation.x = 1.16;
         cloud.rotation.y = -0.12;
         cloud.rotation.z = Math.random() * 2 * Math.PI;
-        cloud.material.opacity = 0.35;
+        cloud.material.opacity = 0.55;
         cloudParticles.push(cloud);
         app.scene.add(cloud);
     }
