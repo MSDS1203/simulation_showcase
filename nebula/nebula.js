@@ -26,14 +26,14 @@ const init = () => {
     const ambient = new THREE.AmbientLight(0x555555);
     app.scene.add(ambient);
 
+    let orangeLightx = Math.random() * 500 - 300;
+    let orangeLightz = Math.random() * 500 - 300;
     const orangeLight = new THREE.PointLight(0xcc6600, 700000);
-    const orangeLightx = Math.random() * 500 - 300;
-    const orangeLightz = Math.random() * 500 - 300;
     orangeLight.position.set(orangeLightx, 300, orangeLightz);
     app.scene.add(orangeLight);
 
-    const redLightx = Math.random() * 500 - 300;
-    const redLightz = Math.random() * 500 - 300;
+    let redLightx = Math.random() * 500 - 300;
+    let redLightz = Math.random() * 500 - 300;
     while (redLightx == orangeLightx){
       redLightx += 300;
     }
@@ -44,8 +44,8 @@ const init = () => {
     redLight.position.set(redLightx, 300, redLightz);
     app.scene.add(redLight);
 
-    const blueLightx = Math.random() * 500 - 300;
-    const blueLightz = Math.random() * 500 - 300;
+    let blueLightx = Math.random() * 500 - 300;
+    let blueLightz = Math.random() * 500 - 300;
     while (blueLightx == redLightx || blueLightx == orangeLightx){
       blueLightx += 300;
     }
