@@ -113,9 +113,27 @@ const init = () => {
     app.composer.addPass(effectPass);
 };
 
+let targetRotationSpeed = 0.001;
+let rotationSpeed = 0.001;
+
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'ArrowRight') {
+    console.log("Key pressed");
+    targetRotationSpeed = 0.01;
+  }
+});
+
+window.addEventListener('keyup', (event) => {
+  if (event.key === 'ArrowRight') {
+    targetRotationSpeed = 0.001;
+  }
+});
+
 const render = () => {
+  rotationSpeed += ( targetRotationSpeed - rotationSpeed ) * 0.1;
+
   cloudParticles.forEach(p =>{
-    p.rotation.z -= 0.001;
+    p.rotation.z -= rotationSpeed;
   });
   app.composer.render(0.1);
   requestAnimationFrame(render);
