@@ -1,7 +1,17 @@
+/*
+Nebula image from: https://en.wikipedia.org/wiki/Nebula
+Rubik's Cube image from: https://rubikverse.com/
+First Person image from: https://rubikverse.com/
+*/
+
 #nebula {
     background-image: url("./assets/nebula.jpeg");
 }
 
 #rubik {
     background-image: url("./assets/rubik.png");
+}
+
+#first-person {
+    background-image: url("./assets/firstPerson.avif");
 }
