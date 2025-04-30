@@ -5,4 +5,4 @@ Website with 3 Three.js simulations. Each member will be responsible for creatin
 ### How to run
 Change directory to the root directory (simulation_showcase)
 Run 'npm install'
-Run 'npx vite'
+Run 'npm run dev'
