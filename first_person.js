@@ -251,12 +251,16 @@ async function createWalls() {
 }*/
 
 async function addFurniture() {
+  app.furniture = [];
+  
   try {
     const gltf = await gltfLoader.loadAsync('models/sofa_02_4k.glb'); // adjust path
     const sofa = gltf.scene;
-
     sofa.scale.set(3, 2, 2);  
     sofa.position.set(1.5, app.floorHeight, -5);  // Place in room
+
+    sofa.updateMatrixWorld(true);
+
     sofa.traverse((child) => {
       if (child.isMesh) {
         child.castShadow = true;
@@ -265,6 +269,9 @@ async function addFurniture() {
     });
 
     app.scene.add(sofa);
+    const sofaBoundingBox = new THREE.Box3().setFromObject(sofa);
+    app.furniture.push({ object: sofa, boundingBox: sofaBoundingBox });
+
     loadedAssets += 1;
     updateProgress();
   } catch (err) {
@@ -279,7 +286,7 @@ async function addFurniture() {
     cabinet.position.set(6, app.floorHeight, 0);  
     //cabinet.rotation.y = Math.PI / 2; // 90 degrees clockwise
     cabinet.rotation.y = -Math.PI / 2; // 90 degrees counter-clockwise
-
+    cabinet.updateMatrixWorld(true);
 
     cabinet.traverse((child) => {
       if (child.isMesh) {
@@ -289,6 +296,9 @@ async function addFurniture() {
     });
 
     app.scene.add(cabinet);
+    const cabinetBoundingBox = new THREE.Box3().setFromObject(cabinet);
+    app.furniture.push({ object: cabinet, boundingBox: cabinetBoundingBox });
+
     loadedAssets += 1;
     updateProgress();
   } catch (err) {
@@ -303,6 +313,8 @@ async function addFurniture() {
     bed.position.set(-4.5, app.floorHeight, -1.5);
     bed.rotation.y = Math.PI / 2; // 90 degrees clockwise
 
+    bed.updateMatrixWorld(true);
+
     bed.traverse((child) => {
       if (child.isMesh) {
         child.castShadow = true;
@@ -311,6 +323,9 @@ async function addFurniture() {
     });
 
     app.scene.add(bed);
+    const bedBoundingBox = new THREE.Box3().setFromObject(bed);
+    app.furniture.push({ object: bed, boundingBox: bedBoundingBox });
+
     loadedAssets += 1;
     updateProgress();
   } catch (err) {
@@ -325,6 +340,8 @@ async function addFurniture() {
     table.position.set(-6, app.floorHeight, 2);
     table.rotation.y = Math.PI / 2; // 90 degrees clockwise
 
+    table.updateMatrixWorld(true);
+    
     table.traverse((child) => {
       if (child.isMesh) {
         child.castShadow = true;
@@ -333,6 +350,9 @@ async function addFurniture() {
     });
 
     app.scene.add(table);
+    const tableBoundingBox = new THREE.Box3().setFromObject(table);
+    app.furniture.push({ object: table, boundingBox: tableBoundingBox });
+
     loadedAssets += 1;
     updateProgress();
   } catch (err) {
@@ -380,6 +400,23 @@ const checkWallCollision = (newPosition) => {
   newPosition.y = Math.max(newPosition.y, app.floorHeight + cameraHeight);
   
   return newPosition;
+};
+
+const checkFurnitureCollision = (newPosition) => {
+  if (!app.furniture || app.furniture.length === 0) return true;
+  
+  // Create a bounding sphere for the player
+  const playerSphere = new THREE.Sphere(
+    newPosition, 
+    app.playerRadius
+  );
+  
+  for (const item of app.furniture) {
+    if (item.boundingBox.intersectsSphere(playerSphere)) {
+      return false; // Collision detected
+    }
+  }
+  return true; // No collisions
 };
 
 const onMouseDown = (e) => {
@@ -441,7 +478,15 @@ const moveCamera = () => {
   }
 
   newPosition.y += app.velocity.y;
-  app.camera.position.copy(checkWallCollision(newPosition));
+  
+  // First check wall collisions
+  const wallCheckedPosition = checkWallCollision(newPosition);
+  
+  // Then check furniture collisions
+  if (checkFurnitureCollision(wallCheckedPosition)) {
+    // Only update position if no furniture collision
+    app.camera.position.copy(wallCheckedPosition);
+  }
 };
 
 const onWindowResize = () => {
