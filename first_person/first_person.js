@@ -64,13 +64,12 @@ const init = async () => {
   app.scene = new THREE.Scene();
   app.scene.background = new THREE.Color(0xaaaaaa);
 
-  const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+ // Reduce ambient light further
+  const ambientLight = new THREE.AmbientLight(0x404040, 0.15); // Was 0.3
   app.scene.add(ambientLight);
 
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
-  directionalLight.position.set(5, 10, 7.5);
-  directionalLight.castShadow = true;
-  app.scene.add(directionalLight);
+  app.renderer.shadowMap.enabled = true;
+  app.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   app.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   app.camera.position.set(0, 2, 5);
@@ -86,6 +85,7 @@ const init = async () => {
   await createFloor();
   await createWalls();
   await addFurniture();
+  await loadRoom();
 
   clearTimeout(loadingTimeout);
 
@@ -95,6 +95,13 @@ const init = async () => {
   document.addEventListener('mousemove', onMouseMove);
   document.addEventListener('keydown', onKeyDown);
   document.addEventListener('keyup', onKeyUp);
+  document.getElementById('home').addEventListener('click', () => {
+    if (app.pointerLocked) {
+      document.exitPointerLock();
+    }
+    window.location.href = '/simulation_showcase';
+  });
+  
 };
 
 const createFloor = async () => {
@@ -240,15 +247,100 @@ async function createWalls() {
   }
 }
 
-/*async function loadRoom(){
-  // Roof
-  const roofGeometry = new THREE.BoxGeometry(app.roomSize, 1, app.roomSize);
-  const roofMaterial = new THREE.MeshStandardMaterial({ color: 0xaaaaaa });
-  const roof = new THREE.Mesh(roofGeometry, roofMaterial);
-  roof.position.y = app.roomSize / 2; // place on top
-  app.scene.add(roof);
+async function loadRoom() {
+  try {
+    // Load wall textures for the roof
+    const [diffuseMap, displacementMap, normalMap, roughnessMap] = await Promise.all([
+      textureLoader.loadAsync("public/textures/plastered_stone_wall_diff_4k.jpg").catch(() => null),
+      textureLoader.loadAsync("public/textures/plastered_stone_wall_disp_4k.png").catch(() => null),
+      exrLoader.loadAsync("public/textures/plastered_stone_wall_nor_gl_4k.exr").catch(() => null),
+      exrLoader.loadAsync("public/textures/plastered_stone_wall_rough_4k.exr").catch(() => null)
+    ]);
 
-}*/
+    // Configure texture wrapping if loaded
+    [diffuseMap, displacementMap, normalMap, roughnessMap].forEach(map => {
+      if (map) {
+        map.wrapS = map.wrapT = THREE.RepeatWrapping;
+        map.repeat.set(app.roomSize.width / 4, app.roomSize.depth / 4);
+      }
+    });
+
+    // Create roof with textures
+    const roofMaterial = new THREE.MeshStandardMaterial({
+      map: diffuseMap,
+      displacementMap: displacementMap,
+      normalMap: normalMap,
+      roughnessMap: roughnessMap,
+      displacementScale: 0.05,
+      side: THREE.DoubleSide,
+      roughness: 0.5,  // Reduced for better light reflection
+      metalness: 0.2
+    });
+
+    const roofGeometry = new THREE.BoxGeometry(
+      app.roomSize.width, 
+      0.5, // Thickness
+      app.roomSize.depth
+    );
+    
+    // Adjust UVs to prevent stretching
+    const uvAttribute = roofGeometry.attributes.uv;
+    const uvScale = [app.roomSize.width / 4, app.roomSize.depth / 4];
+    for (let i = 0; i < uvAttribute.count; i++) {
+      const u = uvAttribute.getX(i);
+      const v = uvAttribute.getY(i);
+      uvAttribute.setXY(i, u * uvScale[0], v * uvScale[1]);
+    }
+
+    const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+    roof.position.y = app.roomSize.height - 0.25;
+    roof.receiveShadow = true;
+    roof.castShadow = true;
+    app.scene.add(roof);
+
+    const ceilingLight = new THREE.PointLight(
+      0xff3333, // Red color
+      8.0,      // Strong intensity
+      30,       // Distance
+      1.0       // Decay
+    );
+    ceilingLight.position.set(0, app.roomSize.height - 0.8, 0);
+    ceilingLight.castShadow = true;
+    ceilingLight.shadow.mapSize.width = 2048;
+    ceilingLight.shadow.mapSize.height = 2048;
+    ceilingLight.shadow.bias = -0.001;
+    app.scene.add(ceilingLight);
+
+    // Visible light bulb
+    const lightBulb = new THREE.Mesh(
+      new THREE.SphereGeometry(0.3, 32, 32),
+      new THREE.MeshBasicMaterial({ 
+        color: 0xff3333,
+        emissive: 0xff3333,
+        emissiveIntensity: 3,
+        transparent: true,
+        opacity: 0.9
+      })
+    );
+    lightBulb.position.copy(ceilingLight.position);
+    app.scene.add(lightBulb);
+
+  } catch (error) {
+    console.error("Error creating roof:", error);
+    // Fallback basic roof if texture loading fails
+    const roofGeometry = new THREE.BoxGeometry(
+      app.roomSize.width, 
+      0.5, 
+      app.roomSize.depth
+    );
+    const roof = new THREE.Mesh(
+      roofGeometry, 
+      new THREE.MeshStandardMaterial({ color: 0xaaaaaa })
+    );
+    roof.position.y = app.roomSize.height - 0.25;
+    app.scene.add(roof);
+  }
+}
 
 async function addFurniture() {
   app.furniture = [];
