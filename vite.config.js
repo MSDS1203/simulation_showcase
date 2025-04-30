@@ -1,3 +1,5 @@
+// Template from Vite Documentaiton and Deep Seek
+
 import { defineConfig } from 'vite'
 import { resolve } from 'path'
 
