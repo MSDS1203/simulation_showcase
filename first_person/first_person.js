@@ -295,35 +295,8 @@ async function loadRoom() {
     const roof = new THREE.Mesh(roofGeometry, roofMaterial);
     roof.position.y = app.roomSize.height - 0.25;
     roof.receiveShadow = true;
-    roof.castShadow = true;
+    roof.castShadow = false;
     app.scene.add(roof);
-
-    const ceilingLight = new THREE.PointLight(
-      0xff3333, // Red color
-      8.0,      // Strong intensity
-      30,       // Distance
-      1.0       // Decay
-    );
-    ceilingLight.position.set(0, app.roomSize.height - 0.8, 0);
-    ceilingLight.castShadow = true;
-    ceilingLight.shadow.mapSize.width = 2048;
-    ceilingLight.shadow.mapSize.height = 2048;
-    ceilingLight.shadow.bias = -0.001;
-    app.scene.add(ceilingLight);
-
-    // Visible light bulb
-    const lightBulb = new THREE.Mesh(
-      new THREE.SphereGeometry(0.3, 32, 32),
-      new THREE.MeshBasicMaterial({ 
-        color: 0xff3333,
-        emissive: 0xff3333,
-        emissiveIntensity: 3,
-        transparent: true,
-        opacity: 0.9
-      })
-    );
-    lightBulb.position.copy(ceilingLight.position);
-    app.scene.add(lightBulb);
 
   } catch (error) {
     console.error("Error creating roof:", error);
@@ -451,31 +424,82 @@ async function addFurniture() {
     console.error("Failed to load table model:", err);
   }
 
-  /*try {
-    const gltf = await gltfLoader.loadAsync('models/brass_candleholders_4k.glb'); 
-    const candles = gltf.scene;
+  try {
+    const gltf = await gltfLoader.loadAsync('public/models/vintage_oil_lamp_4k.glb'); 
+    const oil_lamp = gltf.scene;
   
-    candles.scale.set(1.5, 1.5, 1.5);
+    oil_lamp.scale.set(1.5, 1.5, 1.5);
   
-    // Position book rack on top of the table
-    const tableTopY = app.floorHeight + (1.5 * 0.5); // 1.5 is table scale Y
-    candles.position.set(-6.2, tableTopY + 0.7, 2); // adjust 0.5 upward as needed
-    candles.rotation.y = Math.PI / 2;
+    // Position on top of the table
+    const tableTopY = app.floorHeight + (1.5 * 0.5); 
+    oil_lamp.position.set(-6.2, tableTopY + 0.7, 2); 
+    oil_lamp.rotation.y = Math.PI / 2;
 
-    candles.traverse((child) => {
+    const lampLight = new THREE.PointLight(
+      0xffaa55,  
+      3,        
+      7,         
+      2         
+    );
+
+    lampLight.position.set(0, 0.5, 0);
+    oil_lamp.add(lampLight);
+
+    oil_lamp.traverse((child) => {
       if (child.isMesh) {
         child.castShadow = true;
         child.receiveShadow = true;
       }
     });
   
-    app.scene.add(candles);
+    app.scene.add(oil_lamp);
     loadedAssets += 1;
     updateProgress();
   } catch (err) {
-    console.error("Failed to load candle model:", err);
-  }*/
-  
+    console.error("Failed to load oil lamp model:", err);
+  }
+
+    try {
+      const gltf = await gltfLoader.loadAsync('public/models/Chandelier_03_4k.glb'); 
+      const chandelier = gltf.scene;
+      
+      chandelier.scale.set(1.5, 1.5, 1.5);
+      chandelier.position.set(0, app.roomSize.height, 0); // Hang from ceiling
+    
+      const chandelierLight = new THREE.PointLight(
+        0xff3333,  
+        10,        
+        25,        
+        1.5        
+      );
+      chandelierLight.position.set(0, -1, 0); // Position at bottom of chandelier
+      chandelierLight.castShadow = true;
+      chandelierLight.shadow.mapSize.width = 2048;
+      chandelierLight.shadow.mapSize.height = 2048;
+      chandelier.add(chandelierLight);
+      
+    
+      // Material adjustments
+      chandelier.traverse(child => {
+        if (child.isMesh) {
+          child.castShadow = true;
+          child.receiveShadow = true;
+          child.material.metalness = 0.8;  // More reflective
+          child.material.roughness = 0.2;  // Smoother surface
+        }
+      });
+    
+      app.scene.add(chandelier);
+      const chandelierBoundingBox = new THREE.Box3().setFromObject(chandelier);
+      app.furniture.push({ 
+        object: chandelier, 
+        boundingBox: chandelierBoundingBox,
+        light: chandelierLight  // Store reference
+      });
+    
+    } catch (err) {
+      console.error("Failed to load chandelier:", err);
+    }
 }
 
 
