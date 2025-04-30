@@ -5,6 +5,14 @@ document.getElementById("homeButton").addEventListener("click", () => {
   window.location.href = "../home.html";
 });
 
+let slider = document.getElementById("lightRange");
+let brightness = slider.value;
+
+slider.oninput = function() {
+  brightness = this.value;
+}
+
+
 let app = {
   el: document.getElementById("app"),
   scene: null,
@@ -14,9 +22,18 @@ let app = {
 }
 
 const cloudParticles = [];
-const blueLight = new THREE.PointLight(0x3677ac, 700000);
-const orangeLight = new THREE.PointLight(0xcc6600, 700000);
-const redLight = new THREE.PointLight(0xd8547e, 700000);
+let blueLight = new THREE.PointLight(0x3677ac, 700000);
+let orangeLight = new THREE.PointLight(0xcc6600, 700000);
+let redLight = new THREE.PointLight(0xd8547e, 700000);
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+
+function onPointerMove( event ) {
+
+	pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+	pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+}
 
 const init = () => {
     app.renderer = new THREE.WebGLRenderer();
@@ -41,10 +58,10 @@ const init = () => {
     let redLightx = Math.random() * 500 - 300;
     let redLightz = Math.random() * 500 - 300;
     while (redLightx == orangeLightx){
-      redLightx += 300;
+      redLightx += 500;
     }
     while (redLightz == orangeLightz){
-      redLightz += 300;
+      redLightz += 500;
     }
     redLight.position.set(redLightx, 300, redLightz);
     app.scene.add(redLight);
@@ -52,10 +69,10 @@ const init = () => {
     let blueLightx = Math.random() * 500 - 300;
     let blueLightz = Math.random() * 500 - 300;
     while (blueLightx == redLightx || blueLightx == orangeLightx){
-      blueLightx += 300;
+      blueLightx += 500;
     }
     while (blueLightz == orangeLightz || blueLightz == redLightz){
-      blueLightz += 300;
+      blueLightz += 500;
     }
     blueLight.position.set(blueLightx, 300, blueLightz);
     app.scene.add(blueLight);
@@ -124,7 +141,6 @@ let mvmntz = 0;
 
 window.addEventListener('keydown', (event) => {
   if (event.key === 'ArrowRight') {
-    console.log("Key pressed");
     targetRotation = -0.01;
     mvmntx = -0.01;
   }
@@ -139,7 +155,6 @@ window.addEventListener('keyup', (event) => {
 
 window.addEventListener('keydown', (event) => {
   if (event.key === 'ArrowLeft') {
-    console.log("Key pressed");
     targetRotation = 0.01;
     mvmntx = 0.01;
   }
@@ -154,7 +169,6 @@ window.addEventListener('keyup', (event) => {
 
 window.addEventListener('keydown', (event) => {
   if (event.key === 'ArrowUp') {
-    console.log("Key pressed");
     targetRotation = 0.01;
     mvmntz = -0.01;
   }
@@ -169,7 +183,6 @@ window.addEventListener('keyup', (event) => {
 
 window.addEventListener('keydown', (event) => {
   if (event.key === 'ArrowDown') {
-    console.log("Key pressed");
     targetRotation = -0.01;
     mvmntz = 0.01;
   }
@@ -181,6 +194,45 @@ window.addEventListener('keyup', (event) => {
     mvmntz = 0;
   }
 });
+
+window.addEventListener('pointermove', onPointerMove);
+
+let dragging = false;
+
+window.addEventListener('mousedown', () => {
+  dragging = true;
+});
+
+window.addEventListener('mouseup', () => {
+  dragging = false;
+});
+
+const moveClouds = () => {
+  if (dragging) {
+    raycaster.setFromCamera(pointer, app.camera);
+
+    const intersects = raycaster.intersectObjects(
+      cloudParticles.filter(cloud => cloud.isMesh)
+    );
+  
+    for (let i = 0; i < intersects.length; i++) {
+      const cloud = intersects[i].object;
+  
+      const direction = new THREE.Vector3()
+        .subVectors(cloud.position, app.camera.position)
+        .normalize();
+
+      const distance = cloud.position.distanceTo(app.camera.position);
+
+      const scalar = Math.max(5, 50 / distance);
+      cloud.position.add(direction.multiplyScalar(scalar));
+
+      cloud.position.x = Math.max(-400, Math.min(400, cloud.position.x));
+      cloud.position.y = Math.max(-200, Math.min(500, cloud.position.y));
+      cloud.position.z = Math.max(-500, Math.min(500, cloud.position.z));
+    }
+  }
+}
 
 const render = () => {
   rotationSpeed += ( targetRotation  - rotationSpeed ) * 0.1;
@@ -197,6 +249,12 @@ const render = () => {
     orangeLight.position.z -= mvmntz;
     redLight.position.z -= mvmntz;
   });
+
+  blueLight.intensity = brightness;
+  orangeLight.intensity = brightness; 
+  redLight.intensity = brightness;
+
+  moveClouds();
   app.composer.render(0.1);
   requestAnimationFrame(render);
 };
