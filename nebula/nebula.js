@@ -1,6 +1,10 @@
 import * as THREE from 'three';
 import * as POSTPROCESSING from 'postprocessing';
 
+document.getElementById("homeButton").addEventListener("click", () => {
+  window.location.href = "../home.html";
+});
+
 let app = {
   el: document.getElementById("app"),
   scene: null,
