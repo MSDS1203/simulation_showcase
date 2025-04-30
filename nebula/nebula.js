@@ -65,14 +65,14 @@ const init = () => {
     
     const textureLoader = new THREE.TextureLoader();
 
-    const starTexture = textureLoader.load("stars.jpg");
+    const starTexture = textureLoader.load("./stars.jpg");
     const starEffect = new POSTPROCESSING.TextureEffect({
         blendFunction: POSTPROCESSING.BlendFunction.COLOR_DODGE,
         texture: starTexture,
     });
     starEffect.blendMode.opacity.value = 0.2;
 
-    const cloudTexture = textureLoader.load("smoke.png");
+    const cloudTexture = textureLoader.load("./smoke.png");
     const cloudGeo = new THREE.PlaneGeometry(500, 500);
     const cloudMaterial = new THREE.MeshLambertMaterial({
         map: cloudTexture, 

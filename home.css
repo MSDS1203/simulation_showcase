@@ -4,14 +4,32 @@ Rubik's Cube image from: https://rubikverse.com/
 First Person image from: https://rubikverse.com/
 */
 
-#nebula {
-    background-image: url("./assets/nebula.jpeg");
+body {
+    background-color: aquamarine;
 }
 
-#rubik {
-    background-image: url("./assets/rubik.png");
+h1 {
+    text-align: center;
 }
 
-#first-person {
-    background-image: url("./assets/firstPerson.avif");
+h2 {
+    text-align: center;
+}
+
+h4 {
+    text-align: center;
+}
+
+#row {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+
+img {
+    width: 350px;
+    height: 300px;
+    overflow: hidden;
+    object-fit: cover;
+    object-position: center;
 }
