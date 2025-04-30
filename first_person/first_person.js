@@ -100,10 +100,10 @@ const init = async () => {
 const createFloor = async () => {
   try {
     const [diffuseMap, displacementMap, normalMap, roughnessMap] = await Promise.all([
-      textureLoader.loadAsync("textures/wood_floor_deck_diff_4k.jpg"),
-      textureLoader.loadAsync("textures/wood_floor_deck_disp_4k.png"),
-      exrLoader.loadAsync("textures/wood_floor_deck_nor_gl_4k.exr"),
-      exrLoader.loadAsync("textures/wood_floor_deck_rough_4k.exr")
+      textureLoader.loadAsync("public/textures/wood_floor_deck_diff_4k.jpg"),
+      textureLoader.loadAsync("public/textures/wood_floor_deck_disp_4k.png"),
+      exrLoader.loadAsync("public/textures/wood_floor_deck_nor_gl_4k.exr"),
+      exrLoader.loadAsync("public/textures/wood_floor_deck_rough_4k.exr")
     ]);
 
     [diffuseMap, displacementMap, normalMap, roughnessMap].forEach(map => {
@@ -151,10 +151,10 @@ async function createWalls() {
   try {
     // Load textures with proper error handling
     const [diffuseMap, displacementMap, normalMap, roughnessMap] = await Promise.all([
-      textureLoader.loadAsync("textures/plastered_stone_wall_diff_4k.jpg").catch(() => null),
-      textureLoader.loadAsync("textures/plastered_stone_wall_disp_4k.png").catch(() => null),
-      exrLoader.loadAsync("textures/plastered_stone_wall_nor_gl_4k.exr").catch(() => null),
-      exrLoader.loadAsync("textures/plastered_stone_wall_rough_4k.exr").catch(() => null)
+      textureLoader.loadAsync("public/textures/plastered_stone_wall_diff_4k.jpg").catch(() => null),
+      textureLoader.loadAsync("public/textures/plastered_stone_wall_disp_4k.png").catch(() => null),
+      exrLoader.loadAsync("public/textures/plastered_stone_wall_nor_gl_4k.exr").catch(() => null),
+      exrLoader.loadAsync("public/textures/plastered_stone_wall_rough_4k.exr").catch(() => null)
     ]);
 
     // Create material with fallbacks
