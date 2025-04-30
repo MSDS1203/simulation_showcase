@@ -6,48 +6,48 @@ let app = {
   renderer: null,
   camera: null,
   pointerLocked: false,
-  moveSpeed: 0.05, // Slower movement speed
-  rotationSpeed: 0.002, // Rotation speed
-  velocity: new THREE.Vector3(), // Store velocity for smooth movement
-  gravity: -0.02, // Gravity strength
-  jumpSpeed: 0.2, // Jump speed
-  grounded: false, // Is the camera on the ground
-  keysPressed: {}, // Track keys pressed
-  floorHeight: 0, // Height of the ground
+  moveSpeed: 0.05,
+  rotationSpeed: 0.002,
+  velocity: new THREE.Vector3(),
+  gravity: -0.02,
+  jumpSpeed: 0.2,
+  grounded: false,
+  keysPressed: {},
+  floorHeight: 0,
+  roomSize: { width: 10, height: 5, depth: 10 },
+  wallThickness: 0.5,
+  playerRadius: 0.5
 };
 
 const init = () => {
   app.renderer = new THREE.WebGLRenderer({ antialias: true });
   app.renderer.setSize(window.innerWidth, window.innerHeight);
   app.el.appendChild(app.renderer.domElement);
-  app.renderer.domElement.oncontextmenu = (e) => e.preventDefault(); // Disable right-click context menu
-  app.renderer.domElement.style.cursor = "none"; // Hide cursor
+  app.renderer.domElement.oncontextmenu = (e) => e.preventDefault();
+  app.renderer.domElement.style.cursor = "none";
 
   app.scene = new THREE.Scene();
   app.scene.background = new THREE.Color(0xaaaaaa);
 
   app.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  app.camera.position.set(0, 2, 5); // Ensure the camera starts above the floor (y = 2)
+  app.camera.position.set(0, 2, 5);
 
   // Lighting
   const light = new THREE.DirectionalLight(0xffffff, 1);
   light.position.set(5, 10, 7.5);
   app.scene.add(light);
 
-  // Room (box with inverted normals)
-  const wallMaterial = new THREE.MeshStandardMaterial({ color: 0xc0c0c0, side: THREE.BackSide });
-  const room = new THREE.Mesh(new THREE.BoxGeometry(10, 5, 10), wallMaterial);
-  room.position.y = 2.5;
-  app.scene.add(room);
-
-  // Floor (ground) with collision
+  // Floor (ground)
   const floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(10, 10),
+    new THREE.PlaneGeometry(app.roomSize.width, app.roomSize.depth),
     new THREE.MeshStandardMaterial({ color: 0x808080 })
   );
   floor.rotation.x = -Math.PI / 2;
   app.scene.add(floor);
-  app.floorHeight = floor.position.y; // Store the height of the ground
+  app.floorHeight = floor.position.y;
+
+  // Add visible walls
+  createWalls();
 
   // Event listeners
   window.addEventListener('resize', onWindowResize);
@@ -58,8 +58,42 @@ const init = () => {
   document.addEventListener('keyup', onKeyUp);
 };
 
+function createWalls() {
+  const wallMaterial = new THREE.MeshStandardMaterial({ 
+    color: 0x999999,
+    transparent: true,
+    opacity: 0.7,
+    side: THREE.DoubleSide
+  });
+
+  const walls = [
+    { position: [0, app.roomSize.height/2, app.roomSize.depth/2], size: [app.roomSize.width, app.roomSize.height, app.wallThickness] }, // North
+    { position: [0, app.roomSize.height/2, -app.roomSize.depth/2], size: [app.roomSize.width, app.roomSize.height, app.wallThickness] }, // South
+    { position: [app.roomSize.width/2, app.roomSize.height/2, 0], size: [app.wallThickness, app.roomSize.height, app.roomSize.depth] }, // East
+    { position: [-app.roomSize.width/2, app.roomSize.height/2, 0], size: [app.wallThickness, app.roomSize.height, app.roomSize.depth] } // West
+  ];
+
+  walls.forEach(wall => {
+    const wallMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(...wall.size),
+      wallMaterial
+    );
+    wallMesh.position.set(...wall.position);
+    wallMesh.receiveShadow = true;
+    app.scene.add(wallMesh);
+  });
+}
+
+const checkWallCollision = (newPosition) => {
+  const halfWidth = app.roomSize.width/2 - app.playerRadius;
+  const halfDepth = app.roomSize.depth/2 - app.playerRadius;
+  newPosition.x = THREE.MathUtils.clamp(newPosition.x, -halfWidth, halfWidth);
+  newPosition.z = THREE.MathUtils.clamp(newPosition.z, -halfDepth, halfDepth);
+  return newPosition;
+};
+
 const onMouseDown = (e) => {
-  if (e.button === 0) { // Left click
+  if (e.button === 0) {
     app.renderer.domElement.requestPointerLock();
   }
 };
@@ -74,11 +108,10 @@ const onMouseMove = (e) => {
   const dx = e.movementX || 0;
   const dy = e.movementY || 0;
 
-  app.camera.rotation.order = "YXZ"; // yaw-pitch-roll order
+  app.camera.rotation.order = "YXZ";
   app.camera.rotation.y -= dx * app.rotationSpeed;
   app.camera.rotation.x -= dy * app.rotationSpeed;
 
-  // Clamp vertical rotation
   const maxPitch = Math.PI / 2 - 0.01;
   app.camera.rotation.x = Math.max(-maxPitch, Math.min(maxPitch, app.camera.rotation.x));
 };
@@ -94,43 +127,38 @@ const onKeyUp = (e) => {
 const moveCamera = () => {
   if (!app.pointerLocked) return;
 
-  // Get the camera's direction vectors
   const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(app.camera.quaternion);
   const right = new THREE.Vector3(1, 0, 0).applyQuaternion(app.camera.quaternion);
 
-  // Movement vectors
-  const moveForward = new THREE.Vector3();
-  const moveRight = new THREE.Vector3();
+  const moveDirection = new THREE.Vector3();
+  if (app.keysPressed['w']) moveDirection.addScaledVector(forward, app.moveSpeed);
+  if (app.keysPressed['s']) moveDirection.addScaledVector(forward, -app.moveSpeed);
+  if (app.keysPressed['a']) moveDirection.addScaledVector(right, -app.moveSpeed);
+  if (app.keysPressed['d']) moveDirection.addScaledVector(right, app.moveSpeed);
 
-  if (app.keysPressed['w']) moveForward.addScaledVector(forward, app.moveSpeed);
-  if (app.keysPressed['s']) moveForward.addScaledVector(forward, -app.moveSpeed);
-  if (app.keysPressed['a']) moveRight.addScaledVector(right, -app.moveSpeed);
-  if (app.keysPressed['d']) moveRight.addScaledVector(right, app.moveSpeed);
+  const newPosition = app.camera.position.clone().add(moveDirection);
 
-  // Gravity and ground collision
-  const cameraHeight = 1.8; // Approximate height of the player (eyes at y=1.8)
-  const groundLevel = app.floorHeight;
-  
-  // Check if the camera's "feet" (y=0.0) hit the ground
-  if (app.camera.position.y - cameraHeight <= groundLevel) {
-    app.velocity.y = 0; // Stop falling
-    app.camera.position.y = groundLevel + cameraHeight; // Snap to ground level
+  const cameraHeight = 1.8;
+  const feetPosition = newPosition.y - cameraHeight;
+
+  if (feetPosition <= app.floorHeight) {
+    app.velocity.y = 0;
+    newPosition.y = app.floorHeight + cameraHeight;
     app.grounded = true;
   } else {
-    app.velocity.y += app.gravity; // Apply gravity if in the air
+    app.velocity.y += app.gravity;
     app.grounded = false;
   }
 
-  // Jumping (only if grounded)
   if (app.keysPressed[' '] && app.grounded) {
     app.velocity.y = app.jumpSpeed;
     app.grounded = false;
   }
 
-  // Apply movement
-  app.camera.position.add(moveForward);
-  app.camera.position.add(moveRight);
-  app.camera.position.y += app.velocity.y;
+  newPosition.y += app.velocity.y;
+
+  const clampedPosition = checkWallCollision(newPosition);
+  app.camera.position.copy(clampedPosition);
 };
 
 const onWindowResize = () => {
@@ -141,7 +169,7 @@ const onWindowResize = () => {
 
 const render = () => {
   requestAnimationFrame(render);
-  moveCamera(); // Update camera position based on keys
+  moveCamera();
   app.renderer.render(app.scene, app.camera);
 };
 
