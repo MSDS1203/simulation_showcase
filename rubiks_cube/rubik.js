@@ -1,3 +1,7 @@
+document.getElementById('home').addEventListener('click', () => {
+    window.location.href = "/simulation_showcase";
+})
+
 document.getElementById('start').addEventListener('click', initializeCube);
 
 function initializeCube() {
