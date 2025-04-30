@@ -95,6 +95,13 @@ const init = async () => {
   document.addEventListener('mousemove', onMouseMove);
   document.addEventListener('keydown', onKeyDown);
   document.addEventListener('keyup', onKeyUp);
+  document.getElementById('home').addEventListener('click', () => {
+    if (app.pointerLocked) {
+      document.exitPointerLock();
+    }
+    window.location.href = '/simulation_showcase';
+  });
+  
 };
 
 const createFloor = async () => {
@@ -436,6 +443,17 @@ const onMouseMove = (e) => {
   app.camera.rotation.x -= e.movementY * app.rotationSpeed;
   const maxPitch = Math.PI / 2 - 0.01;
   app.camera.rotation.x = THREE.MathUtils.clamp(app.camera.rotation.x, -maxPitch, maxPitch);
+};
+
+const handleEscape = (e) => {
+  if (e.key === 'Escape') {
+    // Exit pointer lock if active
+    if (app.pointerLocked) {
+      document.exitPointerLock();
+    }
+    // Redirect to home page
+    window.location.href = 'home.html';
+  }
 };
 
 const onKeyDown = (e) => {
