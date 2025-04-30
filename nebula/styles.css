@@ -4,6 +4,7 @@ body {
   padding: 0;
 }
 
+/* From CoPilot */
 #overlay {
   position: absolute;
   top: 10px;
