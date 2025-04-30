@@ -1,0 +1,35 @@
+/*
+Nebula image from: https://en.wikipedia.org/wiki/Nebula
+Rubik's Cube image from: https://rubikverse.com/
+First Person image from: https://rubikverse.com/
+*/
+
+body {
+    background-color: aquamarine;
+}
+
+h1 {
+    text-align: center;
+}
+
+h2 {
+    text-align: center;
+}
+
+h4 {
+    text-align: center;
+}
+
+#row {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+
+img {
+    width: 350px;
+    height: 300px;
+    overflow: hidden;
+    object-fit: cover;
+    object-position: center;
+}

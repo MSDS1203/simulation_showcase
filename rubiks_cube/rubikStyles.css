@@ -10,8 +10,9 @@ body {
 }
 
 #start-screen {
-    margin-top: 1%;
-    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
 }
 
 button {
@@ -32,7 +33,7 @@ canvas {
     position: absolute;
     height: 250px;
     width: 250px;
-    top: 5%;
+    top: 10%;
     left: 10px;
     font-size: 20px;
     background-color: white;
@@ -42,6 +43,8 @@ canvas {
 }
 
 #timer {
+    margin-top: 2%;
+    margin-left: 5%;
     text-align: center;
     color: white;
     z-index: 999;
@@ -49,7 +52,7 @@ canvas {
 
 #instructions {
     position: absolute;
-    top: 9%;
+    top: 13%;
     left: 35px;
     font-size: 16px;
     background-color: green;
@@ -84,4 +87,11 @@ canvas {
 
 .visible {
     display: block;
+}
+
+#start,
+#home {
+    margin-top: 1%;
+    margin-left: 5%;
+    margin-right: 5%;
 }
