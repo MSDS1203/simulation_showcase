@@ -1,11 +1,5 @@
-import * as THREE from './libs/three.module.js';
-import BlendFunction from './libs/BlendFunction.js';
-import BloomEffect from './libs/BloomEffect.js';
-import EffectComposer from './libs/EffectComposer.js';
-import KernelSize from './libs/KernelSize.js';
-import RenderPass from './libs/RenderPass.js';
-import TextureEffect from './libs/TextureEffect.js';
-import EffectPass from './libs/EffectPass.js';
+import * as THREE from 'three';
+import * as POSTPROCESSING from 'postprocessing';
 
 let app = {
   el: document.getElementById("app"),
