@@ -13,3 +13,40 @@ canvas {
   cursor: crosshair;
   user-select: none;
 }
+
+#loading-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+#loading-bar {
+  width: 50%;
+  height: 20px;
+  background: #333;
+  margin-top: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+#loading-bar-progress {
+  height: 100%;
+  width: 0%;
+  background: #4CAF50;
+  transition: width 0.3s ease;
+}
+
+#loading-progress {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
