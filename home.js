@@ -7,5 +7,5 @@ function rubik() {
 }
 
 function firstPerson() {
-
+    window.location.href = "./first_person/index.html";
 }

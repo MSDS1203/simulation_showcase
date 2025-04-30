@@ -254,7 +254,7 @@ async function addFurniture() {
   app.furniture = [];
   
   try {
-    const gltf = await gltfLoader.loadAsync('models/sofa_02_4k.glb'); // adjust path
+    const gltf = await gltfLoader.loadAsync('public/models/sofa_02_4k.glb'); // adjust path
     const sofa = gltf.scene;
     sofa.scale.set(3, 2, 2);  
     sofa.position.set(1.5, app.floorHeight, -5);  // Place in room
@@ -279,7 +279,7 @@ async function addFurniture() {
   }
 
   try {
-    const gltf = await gltfLoader.loadAsync('models/GothicCabinet_01_4k.glb'); // adjust path
+    const gltf = await gltfLoader.loadAsync('public/models/GothicCabinet_01_4k.glb'); // adjust path
     const cabinet = gltf.scene;
 
     cabinet.scale.set(2, 1.5, 1.5);
@@ -306,7 +306,7 @@ async function addFurniture() {
   }
 
   try {
-    const gltf = await gltfLoader.loadAsync('models/GothicBed_01_4k.glb'); // adjust path
+    const gltf = await gltfLoader.loadAsync('public/models/GothicBed_01_4k.glb'); // adjust path
     const bed = gltf.scene;
     
     bed.scale.set(2, 2, 2);
@@ -333,7 +333,7 @@ async function addFurniture() {
   }
 
   try {
-    const gltf = await gltfLoader.loadAsync('models/ClassicConsole_01_4k.glb'); 
+    const gltf = await gltfLoader.loadAsync('public/models/ClassicConsole_01_4k.glb'); 
     const table = gltf.scene;
     
     table.scale.set(2.5, 1.5, 2);
