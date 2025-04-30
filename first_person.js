@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+
 
 let app = {
   el: document.getElementById("app"),
@@ -50,6 +52,7 @@ const loadingManager = new THREE.LoadingManager(
 
 const textureLoader = new THREE.TextureLoader(loadingManager);
 const exrLoader = new EXRLoader(loadingManager);
+const gltfLoader = new GLTFLoader(loadingManager);
 
 const init = async () => {
   app.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -82,6 +85,7 @@ const init = async () => {
 
   await createFloor();
   await createWalls();
+  await addFurniture();
 
   clearTimeout(loadingTimeout);
 
@@ -96,10 +100,10 @@ const init = async () => {
 const createFloor = async () => {
   try {
     const [diffuseMap, displacementMap, normalMap, roughnessMap] = await Promise.all([
-      textureLoader.loadAsync("textures/wood_floor_diff_4k.jpg"),
-      textureLoader.loadAsync("textures/wood_floor_disp_4k.png"),
-      exrLoader.loadAsync("textures/wood_floor_nor_gl_4k.exr"),
-      exrLoader.loadAsync("textures/wood_floor_rough_4k.exr")
+      textureLoader.loadAsync("textures/wood_floor_deck_diff_4k.jpg"),
+      textureLoader.loadAsync("textures/wood_floor_deck_disp_4k.png"),
+      exrLoader.loadAsync("textures/wood_floor_deck_nor_gl_4k.exr"),
+      exrLoader.loadAsync("textures/wood_floor_deck_rough_4k.exr")
     ]);
 
     [diffuseMap, displacementMap, normalMap, roughnessMap].forEach(map => {
@@ -147,10 +151,10 @@ async function createWalls() {
   try {
     // Load textures with proper error handling
     const [diffuseMap, displacementMap, normalMap, roughnessMap] = await Promise.all([
-      textureLoader.loadAsync("textures/patterned_clay_plaster_diff_4k.jpg").catch(() => null),
-      textureLoader.loadAsync("textures/patterned_clay_plaster_disp_4k.png").catch(() => null),
-      exrLoader.loadAsync("textures/patterned_clay_plaster_nor_gl_4k.exr").catch(() => null),
-      exrLoader.loadAsync("textures/patterned_clay_plaster_rough_4k.exr").catch(() => null)
+      textureLoader.loadAsync("textures/plastered_stone_wall_diff_4k.jpg").catch(() => null),
+      textureLoader.loadAsync("textures/plastered_stone_wall_disp_4k.png").catch(() => null),
+      exrLoader.loadAsync("textures/plastered_stone_wall_nor_gl_4k.exr").catch(() => null),
+      exrLoader.loadAsync("textures/plastered_stone_wall_rough_4k.exr").catch(() => null)
     ]);
 
     // Create material with fallbacks
@@ -235,6 +239,133 @@ async function createWalls() {
     console.error("Error creating walls:", error);
   }
 }
+
+/*async function loadRoom(){
+  // Roof
+  const roofGeometry = new THREE.BoxGeometry(app.roomSize, 1, app.roomSize);
+  const roofMaterial = new THREE.MeshStandardMaterial({ color: 0xaaaaaa });
+  const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+  roof.position.y = app.roomSize / 2; // place on top
+  app.scene.add(roof);
+
+}*/
+
+async function addFurniture() {
+  try {
+    const gltf = await gltfLoader.loadAsync('models/sofa_02_4k.glb'); // adjust path
+    const sofa = gltf.scene;
+
+    sofa.scale.set(3, 2, 2);  
+    sofa.position.set(1.5, app.floorHeight, -5);  // Place in room
+    sofa.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+
+    app.scene.add(sofa);
+    loadedAssets += 1;
+    updateProgress();
+  } catch (err) {
+    console.error("Failed to load sofa model:", err);
+  }
+
+  try {
+    const gltf = await gltfLoader.loadAsync('models/GothicCabinet_01_4k.glb'); // adjust path
+    const cabinet = gltf.scene;
+
+    cabinet.scale.set(2, 1.5, 1.5);
+    cabinet.position.set(6, app.floorHeight, 0);  
+    //cabinet.rotation.y = Math.PI / 2; // 90 degrees clockwise
+    cabinet.rotation.y = -Math.PI / 2; // 90 degrees counter-clockwise
+
+
+    cabinet.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+
+    app.scene.add(cabinet);
+    loadedAssets += 1;
+    updateProgress();
+  } catch (err) {
+    console.error("Failed to load cabinet model:", err);
+  }
+
+  try {
+    const gltf = await gltfLoader.loadAsync('models/GothicBed_01_4k.glb'); // adjust path
+    const bed = gltf.scene;
+    
+    bed.scale.set(2, 2, 2);
+    bed.position.set(-4.5, app.floorHeight, -1.5);
+    bed.rotation.y = Math.PI / 2; // 90 degrees clockwise
+
+    bed.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+
+    app.scene.add(bed);
+    loadedAssets += 1;
+    updateProgress();
+  } catch (err) {
+    console.error("Failed to load bed model:", err);
+  }
+
+  try {
+    const gltf = await gltfLoader.loadAsync('models/ClassicConsole_01_4k.glb'); 
+    const table = gltf.scene;
+    
+    table.scale.set(2.5, 1.5, 2);
+    table.position.set(-6, app.floorHeight, 2);
+    table.rotation.y = Math.PI / 2; // 90 degrees clockwise
+
+    table.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+
+    app.scene.add(table);
+    loadedAssets += 1;
+    updateProgress();
+  } catch (err) {
+    console.error("Failed to load table model:", err);
+  }
+
+  /*try {
+    const gltf = await gltfLoader.loadAsync('models/brass_candleholders_4k.glb'); 
+    const candles = gltf.scene;
+  
+    candles.scale.set(1.5, 1.5, 1.5);
+  
+    // Position book rack on top of the table
+    const tableTopY = app.floorHeight + (1.5 * 0.5); // 1.5 is table scale Y
+    candles.position.set(-6.2, tableTopY + 0.7, 2); // adjust 0.5 upward as needed
+    candles.rotation.y = Math.PI / 2;
+
+    candles.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+  
+    app.scene.add(candles);
+    loadedAssets += 1;
+    updateProgress();
+  } catch (err) {
+    console.error("Failed to load candle model:", err);
+  }*/
+  
+}
+
 
 const checkWallCollision = (newPosition) => {
   const halfWidth = app.roomSize.width / 2 - app.wallThickness - app.playerRadius;
