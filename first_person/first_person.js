@@ -22,7 +22,7 @@ let app = {
   playerRadius: 0.5
 };
 
-let totalAssets = 16;
+let totalAssets = 21; // Total number of assets to load
 let loadedAssets = 0;
 
 function updateProgress() {
@@ -374,7 +374,7 @@ async function addFurniture() {
     const gltf = await gltfLoader.loadAsync('public/models/GothicBed_01_4k.glb'); // adjust path
     const bed = gltf.scene;
     
-    bed.scale.set(2, 2, 2);
+    bed.scale.set(2.5, 2, 2);
     bed.position.set(-4.5, app.floorHeight, -1.5);
     bed.rotation.y = Math.PI / 2; // 90 degrees clockwise
 
@@ -422,6 +422,32 @@ async function addFurniture() {
     updateProgress();
   } catch (err) {
     console.error("Failed to load table model:", err);
+  }
+
+  try {
+    const gltf = await gltfLoader.loadAsync('public/models/horse_statue_01_4k.glb'); 
+    const horse = gltf.scene;
+    
+    horse.scale.set(17, 17, 17);
+    horse.position.set(5.5, app.floorHeight, 6);
+
+    horse.updateMatrixWorld(true);
+    
+    horse.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+
+    app.scene.add(horse);
+    const horseBoundingBox = new THREE.Box3().setFromObject(horse);
+    app.furniture.push({ object: horse, boundingBox: horseBoundingBox });
+
+    loadedAssets += 1;
+    updateProgress();
+  } catch (err) {
+    console.error("Failed to load horse model:", err);
   }
 
   try {
