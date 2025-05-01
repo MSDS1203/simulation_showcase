@@ -6,7 +6,7 @@ This is a simulation where in order to start, you must left click. Then you may 
 
 The assets used within this code is from poly haven, here are all of the apropriate links: 
 
-    Slab tiles: https://polyhaven.com/a/wood_floor_deck 
+    Wooden floor: https://polyhaven.com/a/wood_floor_deck 
     Clay wall: https://polyhaven.com/a/patterned_clay_plaster 
     Couch: https://polyhaven.com/a/sofa_02 
     Gothic cabinet: https://polyhaven.com/a/GothicCabinet_01 
