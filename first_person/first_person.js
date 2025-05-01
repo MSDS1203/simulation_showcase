@@ -22,7 +22,7 @@ let app = {
   playerRadius: 0.5
 };
 
-let totalAssets = 8;
+let totalAssets = 16;
 let loadedAssets = 0;
 
 function updateProgress() {
@@ -321,8 +321,8 @@ async function addFurniture() {
   try {
     const gltf = await gltfLoader.loadAsync('public/models/sofa_02_4k.glb'); // adjust path
     const sofa = gltf.scene;
-    sofa.scale.set(3, 2, 2);  
-    sofa.position.set(1.5, app.floorHeight, -5);  // Place in room
+    sofa.scale.set(3.5, 2.5, 2.5);  
+    sofa.position.set(1.5, app.floorHeight, -6);  // Place in room
 
     sofa.updateMatrixWorld(true);
 
