@@ -1,6 +1,9 @@
 # simulation showcase 
 
-Website with 3 Three.js simulations. Each member will be responsible for creating one of the three simulations, defined below. All three members will participate in creating a website for displaying the three simulations.
+Website with 3 Three.js simulations. Each member created one of the three simulations, defined below. 
+ - room simulation - MSDS1203
+ - rubiks cube simulation - sarambos
+ - nebula simulation - srazam
 
 ### How to run
 Change directory to the root directory (simulation_showcase)
